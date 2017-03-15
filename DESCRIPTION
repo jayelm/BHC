@@ -1,4 +1,4 @@
-Package: BHC
+Package: predictiveBHC
 Type: Package
 Title: Bayesian Hierarchical Clustering
 Version: 1.27.0
