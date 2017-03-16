@@ -37,8 +37,12 @@ double** CalculateHyperparameters(NODE* tr_node,
   dataCounter = new double* [nFeatureValues];
   for (int i=0; i<nFeatureValues; i++) dataCounter[i] = new double [dim];
   //construct dynamically a 2D array to hold the hyperparameters
+  // JM: Rows of the hyperparameter 2D array: number of discrete values used in
+  // JM: multinomial. In the binary case, this is 2
   double** hyperParameters;
   hyperParameters = new double* [nFeatureValues];
+  // JM: Columns of the hyperparameter 2D array: the number of features in the
+  // JM: dataset
   for (int i=0; i<nFeatureValues; i++) hyperParameters[i] = new double [dim];
   //----------------------------------------------------------------------
   // INITIALISE THE DATA COUNTER -----------------------------------------

@@ -192,12 +192,14 @@ extern "C" { // required for linking properly to R
     // Declarations
     NODE*  tr_node;
     int    i=0, j=0;
+    // JM: Hardwire dirichlet process
     double alp=0.001, minWeight= -numeric_limits<double>::infinity();
     int    obs=*nObservations, dim=*nFeatures, nFeatureValues=*nFeatureValues_input;
     double globalHyperParameter= *ghpInput; //do this as our inputs/outputs are pointers
     
     // Read in data and run the clustering analysis
     tr_node      = ReadInData(dim, obs, minWeight, nFeatureValues, inputData);
+    // JM: globalHyperParameter becomes cc in bayeslink_binf
     *logEvidence = bayeslink_binf(tr_node,dim,obs,globalHyperParameter, alp,
 				  minWeight, nFeatureValues);
     
@@ -207,6 +209,8 @@ extern "C" { // required for linking properly to R
 	node1[i-obs]       = tr_node[i].pleft+1;
 	node2[i-obs]       = tr_node[i].pright+1;
 	mergeOrder[i-obs]  = i-obs+1;
+    // JM: Take wt from nodes and make it mergeWeight; this becomes logEvidence after dendrogram
+    // is constructed
 	mergeWeight[i-obs] = tr_node[i].wt[i];
       }
     

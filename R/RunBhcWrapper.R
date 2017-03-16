@@ -6,12 +6,20 @@ RunBhcWrapper <- function(globalHyperParameter, dataTypeID, data, timePoints, nD
   
   ##generate the output structure
   if(dataTypeID==0){ # Multinomial case: use the 1.1.0 code
+    # JM: Note bhcWrapper_multinomial always takes pointers
+    # JM: ??? bhcWrapper_multinomial doesn't return anything!
     out <- .C("bhcWrapper_multinomial",
+              # JM: Matrix of data?
               as.integer(data),
+              # JM: Number of rows in the matrix
               as.integer(nDataItems),
+              # JM: Number of columns
               as.integer(nFeatures),
+              # JM: Found in FindOptimalHyperparameter.R. I also return this out of bhc.R
               as.double(globalHyperParameter),
+              # JM: Number of discrete values used for multinomial
               as.integer(nFeatureValues),
+              # JM: Dummy; this value will be changed by `bayeslink_binf`
               logEvidence=as.double(123),
               node1=vector(mode='integer',length=nDataItems-1),
               node2=vector(mode='integer', length=nDataItems-1),

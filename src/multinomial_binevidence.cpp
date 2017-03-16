@@ -30,8 +30,12 @@
 
 double binevidence(NODE* tr_node,
 		   int dim,
+                   // JM: The number of values X number of features array of
+                   // JM: hyperparams
 		   double** hyperParameters,
 		   int index1,
+                   // JM: When used from computing logE of single points,
+                   // JM: always -1
 		   int index2,
 		   int nFeatureValues)
 {
