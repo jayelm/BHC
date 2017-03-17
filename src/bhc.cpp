@@ -15,13 +15,9 @@
 #include "multinomial_header.h" // copied from 1.1.0 package
 
 #include "header.h"
-#include "SquaredExponentialTimecourseDataSet.h"
-#include "RobustSquaredExponentialTimecourseDataSet.h"
-#include "CubicSplineTimecourseDataSet.h"
-#include "RobustCubicSplineTimecourseDataSet.h"
+#include "MultinomialDataSet.h"
 #include "Node.h"
 #include "DirichletProcessMixture.h"
-#include "BlockCovarianceMatrix.h"
 
 /* ----------------------------------------------------------------------
    This is the interface to the time-series and cubic-spline implementations.
@@ -54,7 +50,7 @@ extern "C" { // required for linking properly to R
     int i, j, counter1=0;
     string dataFile, dataType, outputFile;
     vector<Node> treeNode;
-    DataSet* dataSet=NULL;
+    MultinomialDataSet* dataSet=NULL;
     DirichletProcessMixture bhc;
     
     // Since our inputs are pointers, this saves some effort later
@@ -64,7 +60,7 @@ extern "C" { // required for linking properly to R
       num_reps_copy = *num_reps,
       set_noise_copy = *set_noise_input,
       robust_copy = *robust_input;
-    //double globalHyperParameter= *ghpInput; // unused
+    double globalHyperParameter= *ghpInput; // unused
     vector<double> noise, timePoints_copy;
     // For ease, we define both these 2D arrays; we only need one
     vector<vector<int> > data_int;
@@ -75,9 +71,9 @@ extern "C" { // required for linking properly to R
     omp_set_num_threads(MAX(*numThreads,1));
 #endif
     
-    if      (dataTypeID==0) { cout << "Oops! Wrong function for multinomial!" << endl; return; }
-    else if (dataTypeID==1) dataType = "time-course";
-    else if (dataTypeID==2) dataType = "cubicspline";
+    if      (dataTypeID==0) dataType = "multinomial";
+    else if (dataTypeID==1) { cout << "ERROR: Disabling time course for now" << endl; return; } // dataType = "time-course";
+    else if (dataTypeID==2) { cout << "ERROR: Disabling time course for now" << endl; return; }// dataType = "cubicspline";
     else
     {
       cout<<"Oops! invalid dataType! tag one"<<endl;
@@ -85,64 +81,85 @@ extern "C" { // required for linking properly to R
     }
 
     // Copy data into an array of doubles
-    for (i=0; i<nDataItems; i++)
-      {
-        data_double.push_back(vector<double>(nFeatures, 0));
-        for (j=0; j<nFeatures; j++)
-	  {
-	    data_double[i][j] = inputData[counter1++];
-	  }
-      }
+    if (dataType == "multinomial") {
+        // Copy data into an array of ints
+        for (i = 0; i < nDataItems; i++) {
+            data_int.push_back(vector<int>(nFeatures, 0));
+            for (j = 0; j < nFeatures; j++) {
+                data_double[i][j] = (int) inputData[counter1++];
+            }
+        }
+    } else {
+        // Use doubles
+      cout<<"ERROR: Disabling time course for now"<<endl;
+      return;
+        // for (i=0; i<nDataItems; i++)
+          // {
+            // data_double.push_back(vector<double>(nFeatures, 0));
+            // for (j=0; j<nFeatures; j++)
+          // {
+            // data_double[i][j] = inputData[counter1++];
+          // }
+          // }
+    }
 
     //Read in the timePoints
-    for (i=0; i<nFeatures; i++)
-      {
-        timePoints_copy.push_back(timePoints[i]);
-      }
+    // for (i=0; i<nFeatures; i++)
+      // {
+        // timePoints_copy.push_back(timePoints[i]);
+      // }
 
     // Copying over the noise vector
-    if (set_noise_copy ==2)
-    {
-      for (i=0; i<nDataItems; i++)
-      {
-        noise.push_back(noise_input[i]);
-      }
-    }
-    else if (set_noise_copy ==1)
-    {
-      noise.push_back(noise_input[0]);
-    }
-    else if (set_noise_copy ==0)
-    {
-      noise.push_back(0.0);
-    }
+    // if (set_noise_copy ==2)
+    // {
+      // for (i=0; i<nDataItems; i++)
+      // {
+        // noise.push_back(noise_input[i]);
+      // }
+    // }
+    // else if (set_noise_copy ==1)
+    // {
+      // noise.push_back(noise_input[0]);
+    // }
+    // else if (set_noise_copy ==0)
+    // {
+      // noise.push_back(0.0);
+    // }
 
     // Instantiate the required type of dataset object
     if (dataType=="time-course")
     {
-      if (robust_copy == 0)
-      {
-        dataSet = new SquaredExponentialTimecourseDataSet(data_double);
-        dataSet->ReadInNoise(noise);
-      }
-      else if (robust_copy == 1)
-      {
-        dataSet = new RobustSquaredExponentialTimecourseDataSet(data_double);
-        dataSet->ReadInNoise(noise);
-      }
+      cout<<"ERROR: Disabling time course for now"<<endl;
+      return;
+      // if (robust_copy == 0)
+      // {
+        // dataSet = new SquaredExponentialTimecourseDataSet(data_double);
+        // dataSet->ReadInNoise(noise);
+      // }
+      // else if (robust_copy == 1)
+      // {
+        // dataSet = new RobustSquaredExponentialTimecourseDataSet(data_double);
+        // dataSet->ReadInNoise(noise);
+      // }
     }
     else if (dataType=="cubicspline")
     {
-      if (robust_copy == 0)
-      {
-        dataSet = new CubicSplineTimecourseDataSet(data_double);
-        dataSet->ReadInNoise(noise);
-      }
-      if (robust_copy == 1)
-      {
-        dataSet = new RobustCubicSplineTimecourseDataSet(data_double);
-        dataSet->ReadInNoise(noise);
-      }
+      cout<<"ERROR: Disabling time course for now"<<endl;
+      return;
+      // if (robust_copy == 0)
+      // {
+        // dataSet = new CubicSplineTimecourseDataSet(data_double);
+        // dataSet->ReadInNoise(noise);
+      // }
+      // if (robust_copy == 1)
+      // {
+        // dataSet = new RobustCubicSplineTimecourseDataSet(data_double);
+        // dataSet->ReadInNoise(noise);
+      // }
+    } else if (dataType=="multinomial")
+    {
+      dataSet = new MultinomialDataSet(data_int, globalHyperParameter);
+      // No noise here
     }
     else
     {
@@ -150,20 +167,22 @@ extern "C" { // required for linking properly to R
       return;
     }
 
-    dataSet->SetNoiseMode(set_noise_copy);
-    if (set_noise_copy ==2)
-    {
-      dataSet->SetReps(num_reps_copy);
-    }
-    dataSet->SetRobustMode(robust_copy);
-    dataSet->SetDataType(dataType);
-    dataSet->ReadInTimePoints(timePoints_copy);
+    // dataSet->SetNoiseMode(set_noise_copy);
+    // if (set_noise_copy ==2)
+    // {
+      // dataSet->SetReps(num_reps_copy);
+    // }
+    // dataSet->SetRobustMode(robust_copy);
+    // dataSet->SetDataType(dataType);
+    // dataSet->ReadInTimePoints(timePoints_copy);
 
     // Run clustering analysis
-    if(*m<2 || *m>=nDataItems)
+    if(*m<2 || *m>=nDataItems) {
       treeNode = bhc.GreedyClustering(*dataSet, false);
-    else
+    }
+    else {
       treeNode = bhc.RandomisedClustering(*dataSet, *m, 0, false);
+    }
 
     // Pass the dendrogram data back to R
     for (i=0; i<nDataItems-1; i++)
@@ -177,51 +196,5 @@ extern "C" { // required for linking properly to R
 
     // Cleanup
     delete dataSet;
-  }
-
-/* ----------------------------------------------------------------------
-   This is the interface to the multinomial implementation. The code
-   is identical to that used in the 1.1.0 BHC package.
----------------------------------------------------------------------- */
-
-  void bhcWrapper_multinomial(int* inputData, int* nObservations, int* nFeatures,
-			      double* ghpInput, int* nFeatureValues_input,
-			      double* logEvidence, int* node1, int* node2,
-			      int* mergeOrder, double* mergeWeight)
-  {
-    // Declarations
-    NODE*  tr_node;
-    int    i=0, j=0;
-    // JM: Hardwire dirichlet process
-    double alp=0.001, minWeight= -numeric_limits<double>::infinity();
-    int    obs=*nObservations, dim=*nFeatures, nFeatureValues=*nFeatureValues_input;
-    double globalHyperParameter= *ghpInput; //do this as our inputs/outputs are pointers
-    
-    // Read in data and run the clustering analysis
-    tr_node      = ReadInData(dim, obs, minWeight, nFeatureValues, inputData);
-    // JM: globalHyperParameter becomes cc in bayeslink_binf
-    *logEvidence = bayeslink_binf(tr_node,dim,obs,globalHyperParameter, alp,
-				  minWeight, nFeatureValues);
-    
-    // Pass the dendrogram data back to R
-    for (i=obs; i<obs*2-1; i++)
-      {
-	node1[i-obs]       = tr_node[i].pleft+1;
-	node2[i-obs]       = tr_node[i].pright+1;
-	mergeOrder[i-obs]  = i-obs+1;
-    // JM: Take wt from nodes and make it mergeWeight; this becomes logEvidence after dendrogram
-    // is constructed
-	mergeWeight[i-obs] = tr_node[i].wt[i];
-      }
-    
-    // Cleanup
-    for (i=0; i<2*obs; i++) {
-      for (j=0;j<nFeatureValues;j++)
-	delete[] tr_node[i].dat[j];
-      delete[] tr_node[i].num1;
-      delete[] tr_node[i].num2;
-      delete[] tr_node[i].wt;
-    }
-    delete[] tr_node;
   }
 }

@@ -14,7 +14,6 @@
 #define DATASET_H
 
 #include "header.h"
-#include "BlockCovarianceMatrix.h"
 
 /* ----------------------------------------------------------------------
    This is an abstract base class which allows BHC to handle different
@@ -26,29 +25,14 @@ class DataSet
 {
  public:
   virtual ~DataSet() {}
-  virtual double SingleClusterLogEvidence(const vector<int>& itemIndex,
-					  double& lengthScale,
-					  double& noiseFreeScale,
-					  double& noiseSigma,
-					  double& mixtureComponent) = 0;
+  // JM NOTE: Multinomial takes a straight-up vector...rather than a pointer
+  virtual double SingleClusterLogEvidence(vector<int>& itemIndex) = 0;
   virtual void ReadInData(string dataFile) = 0;
-  virtual void ReadInNoise(string dataFile) = 0;
-  virtual void ReadInNoise(vector<double> noise) = 0;
-  virtual void ReadInTimePoints(vector<double> timePoints) = 0;
   virtual double GetClusterNoise(int nodeID) = 0;
-  virtual double GetMergedClusterNoise(vector<int>) = 0;
-  virtual double GetClusterSE(vector<int>) = 0;
-  virtual double GetClusterSEMS(vector<int>) = 0;
-  virtual void SetNoiseMode(int mode) = 0;
-  virtual void SetReps(int num_reps) = 0;
-  virtual int GetNoiseMode() = 0;
-  virtual void SetRobustMode(int mode) = 0;
-  virtual int GetRobustMode() = 0;
-  virtual void SetDataType(string type) = 0;
-  virtual double GetMLIINoise(vector<int> itemIndex) = 0;
-  virtual BlockCovarianceMatrix SquareExponentialCovarianceFunctionMissingSingleObservation(vector<vector<double> > KnFC, vector<double> KnC, int KblockSize, int KnRank, int timePoint) = 0;
-  virtual vector<double> GetDataForCluster(vector<int> itemIndex) = 0;
+  // This seems useful...why isn't this implemented?
+  // virtual vector<double> GetDataForCluster(vector<int> itemIndex) = 0;
 
+  // Implemented in DataSet.cpp
   void FindDataSize(string dataFile);
   void ReadInDataVector(vector<int> inputData, int nDataItems, int nFeatures);
   int Get_nDataItems();

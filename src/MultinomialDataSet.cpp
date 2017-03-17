@@ -29,6 +29,8 @@ MultinomialDataSet::MultinomialDataSet(const vector<vector<int> >& inputData, do
   int currentValue;
   int minVal=INT_MAX, maxVal=INT_MIN;//initial values that will be over-written in the first pass
   //ASSIGN THE GLOBAL HYPERPARAMETER
+  // JM: TODO: check to make sure private values globalHyperParameter, data,
+  // hyperParameter are already declared and can be accessed like this
   globalHyperParameter=hyperParam;
   //COPY THE DATA INTO THE OBJECT
   data = inputData;
@@ -132,7 +134,7 @@ void MultinomialDataSet::ComputeHyperParameters()
 //*****************************************************************************
 //*****************************************************************************
 // COMPUTE THE LOG-EVIDENCE FOR A SINGLE CLUSTER CONTAINING THE DATA ITEMS IDENTIFIED BY 'itemIndex'
-double MultinomialDataSet::SingleClusterLogEvidence(vector<int> itemIndex)
+double MultinomialDataSet::SingleClusterLogEvidence(vector<int>& itemIndex)
 {
   //DECLARATIONS
   int                   i, j;

@@ -16,7 +16,7 @@ public:
   MultinomialDataSet(const vector<vector<int> >& inputData, double hyperParam);
   //OTHER METHODS
   void   ComputeHyperParameters();
-  double SingleClusterLogEvidence(vector<int> itemIndex);  // returns the log-evidence for a cluster that contains data items defined by itemIndex
+  double SingleClusterLogEvidence(vector<int>& itemIndex);  // returns the log-evidence for a cluster that contains data items defined by itemIndex
   void   ReadInData(string dataFile);                      //read data in from a file
   double GetClusterNoise(int NodeID);
   

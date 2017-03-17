@@ -49,11 +49,7 @@ Node Node::CreateDataNode(DataSet& dataSet, const int arg_nodeID)
   // Find the optimised hyperparameters for this node and compute the
   // overall log-evidence estimate
   thisNode.lowerBoundLogEvidence
-    = dataSet.SingleClusterLogEvidence(thisNode.childDataIDs,
-				       lengthScale,
-				       noiseFreeScale,
-				       noiseSigma,
-				       mixtureComponent);
+    = dataSet.SingleClusterLogEvidence(thisNode.childDataIDs);
   return thisNode;
 }
 
@@ -96,11 +92,7 @@ Node Node::CreateMergerNode(DataSet& dataSet,
   b=min(tr1,tr2);
   ckt=a+log(1.0+exp(b-a));
   pk=tr1-ckt;
-  gell=dataSet.SingleClusterLogEvidence(thisNode.childDataIDs,
-					lengthScale,
-					noiseFreeScale,
-					noiseSigma,
-					mixtureComponent);
+  gell=dataSet.SingleClusterLogEvidence(thisNode.childDataIDs);
   num1=pk+gell;
   num2=tr2-ckt+node1.lowerBoundLogEvidence+node2.lowerBoundLogEvidence;
   thisNode.clusterLogEvidence=num1-num2;
