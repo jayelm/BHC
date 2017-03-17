@@ -67,6 +67,7 @@ extern "C" { // required for linking properly to R
     // Parallelise if required
 #ifdef SUPPORT_OPENMP
     omp_set_num_threads(MAX(*numThreads,1));
+    cout << "SUPPORT_OPENMP ENABLED; set num threads!!" << endl;
 #endif
     
     if (dataTypeID == 0) {
