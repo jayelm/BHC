@@ -3,6 +3,8 @@ RunBhcWrapper <- function(globalHyperParameter, dataTypeID, data, timePoints, nD
   ##prep
   if(!randomised)
     m = -1 # this is how we tell the library not to use the randomised algorithm
+
+  message("numThreads: ", numThreads)
   
   ##generate the output structure
   out <- .C("bhcWrapper",

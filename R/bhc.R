@@ -45,8 +45,10 @@ bhc <- function(data, itemLabels=NULL, nFeatureValues=0, timePoints=NULL, dataTy
   ##----------------------------------------------------------------------
   ##ultimately, we might want to move this inside the C++ code
   if (dataType=="multinomial")
+    # JM: Be sure to pass numThreads here!
     globalHyperParam <- FindOptimalHyperparameter(dataTypeID, data, timePoints, noise,
                                                   nDataItems, nFeatures, nFeatureValues,
+                                                  numThreads,
                                                   verbose=verbose)
   else
     globalHyperParam <- 0 ##dummy value as we don't need a global Hyperparam in this case

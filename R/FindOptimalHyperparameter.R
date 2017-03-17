@@ -1,7 +1,7 @@
 ##Function to run a series of numerical optimsations on the overall log-Evidence, to find
 ##the optimal value for the global hyperparameter.
 ##This function assumes that the log-Evidence is well-behaved in the region of param=1
-FindOptimalHyperparameter <- function(dataTypeID, data, timePoints, noise, nDataItems, nFeatures, nFeatureValues, verbose=FALSE){
+FindOptimalHyperparameter <- function(dataTypeID, data, timePoints, noise, nDataItems, nFeatures, nFeatureValues, numThreads, verbose=FALSE){
   if (verbose) print("Optimising global hyperparameter...", quote=FALSE)
   ##----------------------------------------------------------------------
   ## BASIC SCAN OF (1D) HYPERPARAMETER SPACE TO FIND ROUGH REGION WHERE --
@@ -9,7 +9,7 @@ FindOptimalHyperparameter <- function(dataTypeID, data, timePoints, noise, nData
   ##----------------------------------------------------------------------
   param.lower <- 1
   param.upper <- 1
-  logEv.lower <- RunBhcWrapper(param.lower, dataTypeID, data, timePoints, nDataItems, nFeatures, nFeatureValues, noise=noise)  
+  logEv.lower <- RunBhcWrapper(param.lower, dataTypeID, data, timePoints, nDataItems, nFeatures, nFeatureValues, noise=noise, numThreads = numThreads)  
   logEv.upper <- logEv.lower
   ##find a sensible lower bound >= 2^-maxcounter
   maxcounter <- 10
@@ -17,7 +17,8 @@ FindOptimalHyperparameter <- function(dataTypeID, data, timePoints, noise, nData
   repeat{
     param.lower <- 0.5 * param.lower
     logEv.new   <- RunBhcWrapper(param.lower, dataTypeID, data, timePoints,
-                                 nDataItems, nFeatures, nFeatureValues, noise=noise)
+                                 nDataItems, nFeatures, nFeatureValues, noise=noise,
+                                 numThreads = numThreads)
     counter <- counter + 1
     if ((logEv.new - logEv.lower) < 0 || counter > maxcounter)
       break
@@ -29,7 +30,8 @@ FindOptimalHyperparameter <- function(dataTypeID, data, timePoints, noise, nData
   repeat{ 
     param.upper <- 2 * param.upper
     logEv.new   <- RunBhcWrapper(param.upper, dataTypeID, data, timePoints,
-                                 nDataItems, nFeatures, nFeatureValues, noise=noise)
+                                 nDataItems, nFeatures, nFeatureValues, noise=noise,
+                                 numThreads = numThreads)
     counter <- counter + 1
     if ((logEv.new - logEv.upper) < 0 || counter > maxcounter)
       break
@@ -46,6 +48,7 @@ FindOptimalHyperparameter <- function(dataTypeID, data, timePoints, noise, nData
   optimalOutput <- optimise(RunBhcWrapper, interval =c(param.lower, param.upper),
                             dataTypeID, data, timePoints, nDataItems, nFeatures,
                             nFeatureValues, noise=noise, maximum = TRUE, tol=1.,
+                            numThreads = numThreads,
                             verbose=verbose)
 
   ##return the optimal hyperparameter value

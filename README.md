@@ -23,6 +23,14 @@ To not mess around with export, it might be worth defining some of these
 functions within toplevel, export-ready functions (or at least composed into
 very easy-to-understand pieces)
 
+## Catches when transition to new dataset
+
+- MultinomialDataset doesn't have many virtual methods of the abstract class
+    Dataset implemented
+- MultinomialDataset accepts a raw vector of ints; make it accept a pointer
+    (both in the .h and .cpp files). Seems to work even then
+- In the multinomial case, FindOptimalHyperparameter is ran, which runs RunBhcWrapper; make sure these functions take the numThreads/randomised arguments
+
 ## Assumptions made
 
 - `logEvidence` is the log-odds ratio of $r_k$, since in `WriteOutClusterLabels`,
