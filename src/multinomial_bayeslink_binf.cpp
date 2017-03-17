@@ -97,7 +97,12 @@ double bayeslink_binf(NODE* tr_node,
       tr_node[i].num1[j] = pk + gell;
       // JM: num2 has something to do with log P(D_k \mid T_k)
       tr_node[i].num2[j] = tr2 - ckt + tr_node[i].wt[i] + tr_node[j].wt[j];
-      // JM: So wt is log (r_k / 1 - r_k) ?? maybe?; the log-odds ratio of num1/num2
+      // JM: If there are only two hypotheses H_1 and H_2 then if
+      // JM: num1 is P(D_k \mid H_1) and num2 is P(D_k \mid H_0) = 1 - P(D_k
+      // JM: \mid H_1) then as formulated wt is indeed the log evidence ratio
+      // JM: log(P(D_k \mid H_1)) - log(P(D_k \mid H_0))
+      // JM: Specifically, wt is log (r_k / 1 - r_k) = log(r_k) - log(1 -
+      // JM: r_k); the log-odds ratio of num1/num2
       tr_node[i].wt[j]   = tr_node[i].num1[j] - tr_node[i].num2[j];
     }
   
@@ -112,6 +117,8 @@ double bayeslink_binf(NODE* tr_node,
     for (i=0;i<2*obs;i++){
       if (tr_node[i].flag==0)
 	for (j=i+1;j<2*obs;j++)
+        // JM: This comparison is comparing odds ratios (which is a monotone
+        // JM: transform of r_k, so we're good)
 	  if ((tr_node[j].flag==0)&&(tr_node[i].wt[j]>wt_temp)){
 	    wt_temp = tr_node[i].wt[j];
 	    node1   = i;
