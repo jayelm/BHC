@@ -3,12 +3,31 @@
 Rich Savage's BHC implementation, but including some routines to compute the
 posterior predictive distribution.
 
-TODO: Figure out how the hyperparameters are used.
+Things to do to compute posterior predictive:
+
+- Function for getting all $r_k$s of nodes (**Done**; move into package)
+- Function for computing all $\omega_k$s of nodes
+    - Can be done recursively, probably; look at $\omega_k$ formula (just sum of weights of nodes up to root)
+- Return Dirichlet hyperparameters from C++ code (declared in `bayeslink_binf`)
+- Function for getting indices of the data represented by each node
+    - Probably possible to do such w/ C++ code, or just redo outside of R for laziness; make a map of leaf labels to indices, recursively build up indices...
+- Function for computing the posterior predictive distribution given a node's subset of data and hyperparameters;
+    - More specifically, a function for returning the log-likelihood of a data point according to the posterior predictive distribution of a node (I don't need to do sampling)
+    - Follow (and verify) math in https://people.eecs.berkeley.edu/~stephentu/writeups/dirichlet-conjugate-prior.pdf
+        - Or find an R version on the internet somewhere???
+        - Will require clarifying the prior parameters of the multinomial
+- A toplevel function to make predictions from the tree by summing up over all
+    nodes $\omega_k$
+
+To not mess around with export, it might be worth defining some of these
+functions within toplevel, export-ready functions (or at least composed into
+very easy-to-understand pieces)
 
 ## Assumptions made
 
 - `logEvidence` is the log-odds ratio of $r_k$, since in `WriteOutClusterLabels`,
     the tree is cut where `logEvidence < 0`, which must be where $r_k < 0.5$.
+    - Further evidence that `logEvience` is actually a *log evidence ratio* is that `logEvidence`s as constructed in `ConstructDendrogramObject.R` are assigned from `mergeWeight`, where a comment mentions that `mergeWeight`s are the log-evidence ratios (and that the math in bayeslink_bin checks out)
 
 ## Chain of computation in multinomial case
 
