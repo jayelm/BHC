@@ -12,8 +12,6 @@
 
 #include <limits>
 
-#include "multinomial_header.h" // copied from 1.1.0 package
-
 #include "header.h"
 #include "MultinomialDataSet.h"
 #include "Node.h"
