@@ -5,8 +5,8 @@ posterior predictive distribution.
 
 Things to do to compute posterior predictive:
 
-- Function for getting all $r_k$s of nodes (**Done**; move into package)
-- Function for computing all $\omega_k$s of nodes
+- Function for getting all $r_k$s of nodes (**Done**)
+- Function for computing all $\omega_k$s of nodes (**Done**)
     - Can be done recursively, probably; look at $\omega_k$ formula (just sum of weights of nodes up to root)
 - Return Dirichlet hyperparameters from C++ code (declared in `bayeslink_binf`)
 - Function for getting indices of the data represented by each node
