@@ -63,7 +63,7 @@ add_logwk = function(dend, lognk_weight = 0) {
 
 add_weights = function(dend) {
 
-  dend = dendrapply(dend, add_logrk)
+  dend = add_logrk(dend)
   dend = add_logwk(dend)
 
   dend
