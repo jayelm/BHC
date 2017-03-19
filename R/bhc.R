@@ -70,6 +70,8 @@ bhc <- function(data, itemLabels=NULL, nFeatureValues=0, timePoints=NULL, dataTy
           quote=FALSE);
     print("*******************", quote=FALSE)
   }
+  # Attach globalHyperParam as an attribute of the output dendrogram
+  attr(outputDendrogram, "globalHyperParam") = globalHyperParam
   ##return the output dendrogram
   outputDendrogram
 }

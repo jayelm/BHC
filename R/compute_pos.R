@@ -71,6 +71,7 @@ add_weights = function(dend) {
 
 # TODO: Vectorize better
 compute_hyperparameters = function(dend, data) {
+  global_hyperparameter = attr(dend, "globalHyperParam")
   n_data_items = nrow(data)
   n_features = ncol(data)
   n_feature_values = length(unique(data))
@@ -119,4 +120,8 @@ compute_hyperparameters = function(dend, data) {
 # FINAL COMPUTING FUNCTION ====
 compute_pos = function(dend, data) {
   add_weights(dend)
+
+  hypers = compute_hyperparameters(dend, data)
+
+  dend
 }
