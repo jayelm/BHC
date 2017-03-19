@@ -69,7 +69,54 @@ add_weights = function(dend) {
   dend
 }
 
+# TODO: Vectorize better
+compute_hyperparameters = function(dend, data) {
+  n_data_items = nrow(data)
+  n_features = ncol(data)
+  n_feature_values = length(unique(data))
+
+  hyperparameter = matrix(nrow = n_features, ncol = n_feature_values)
+
+  for (i in 1:n_features) {
+    data_counter = rep(1, n_feature_values)
+    new_hyperparameter = rep(0, n_feature_values)
+    for (j in 1:n_data_items) {
+      data_counter[data[j, i]] = data_counter[data[j, i]] + 1
+    }
+
+    # Katherine's formula
+    new_hyperparameter = global_hyperparameter * data_counter / (n_data_items + 1)
+
+    hyperparameter[i, ] = new_hyperparameter
+  }
+
+  hyperparameter
+}
+
+# void MultinomialDataSet::ComputeHyperParameters()
+# {
+  # //DECLARATIONS
+  # int            i, j, k;
+  # vector<double> dataCounter;
+  # vector<double> newHyperParameter;
+  # //COMPUTE THE HYPERPARAMETER VALUES
+  # for (i=0; i<nFeatures; i++)
+  # {
+    # //initialise the data counter, vector of new hyperparameters
+    # dataCounter       = vector<double>(nFeatureValues, 1);
+    # newHyperParameter = vector<double>(nFeatureValues, 0);
+    # //count the number of each occurrences of each data value
+    # for (j=0; j<nDataItems; j++)
+      # dataCounter[data[j][i]]++;
+    # //calculate the hyperparameter values
+    # for (k=0; k<nFeatureValues; k++)
+      # newHyperParameter[k] = globalHyperParameter * dataCounter[k] / (nDataItems+1); //this is the formula used by Katherine
+    # //store the hyperparameters
+    # hyperParameter.push_back(newHyperParameter);
+  # }
+# }
+
 # FINAL COMPUTING FUNCTION ====
-compute_pos = function(dend) {
+compute_pos = function(dend, data) {
   add_weights(dend)
 }
