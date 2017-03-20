@@ -8,9 +8,8 @@ Things to do to compute posterior predictive:
 - Function for getting all $r_k$s of nodes (**Done**)
 - Function for computing all $\omega_k$s of nodes (**Done**)
     - Can be done recursively, probably; look at $\omega_k$ formula (just sum of weights of nodes up to root)
-- Return Dirichlet hyperparameters from C++ code (**Done** (redone in R))
-- Function for getting indices of the data represented by each node
-    - Probably possible to do such w/ C++ code, or just redo outside of R for laziness; make a map of leaf labels to indices, recursively build up indices...
+- Re-calculate Dirichlet hyperparameters (**Done**)
+- Function for getting indices of the data represented by each node (**Done**)
 - Function for computing the posterior predictive distribution given a node's subset of data and hyperparameters;
     - More specifically, a function for returning the log-likelihood of a data point according to the posterior predictive distribution of a node (I don't need to do sampling)
     - Follow (and verify) math in https://people.eecs.berkeley.edu/~stephentu/writeups/dirichlet-conjugate-prior.pdf
