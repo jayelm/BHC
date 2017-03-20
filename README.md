@@ -8,7 +8,7 @@ Things to do to compute posterior predictive:
 - Function for getting all $r_k$s of nodes (**Done**)
 - Function for computing all $\omega_k$s of nodes (**Done**)
     - Can be done recursively, probably; look at $\omega_k$ formula (just sum of weights of nodes up to root)
-- Return Dirichlet hyperparameters from C++ code (declared in `bayeslink_binf`)
+- Return Dirichlet hyperparameters from C++ code (**Done** (redone in R))
 - Function for getting indices of the data represented by each node
     - Probably possible to do such w/ C++ code, or just redo outside of R for laziness; make a map of leaf labels to indices, recursively build up indices...
 - Function for computing the posterior predictive distribution given a node's subset of data and hyperparameters;
