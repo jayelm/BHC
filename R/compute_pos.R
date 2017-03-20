@@ -41,7 +41,7 @@ add_logrk = function(dend) {
     logEvidencek = attr(node, "logEvidence")
     logrk = loglogistic(logEvidencek)
     attr(node, "logrk") = logrk
-    n
+    node
   })
 }
 
@@ -51,9 +51,9 @@ add_logrk = function(dend) {
 add_logwk = function(dend, lognk_weight = 0) {
   logrk = attr(dend, "logrk")
   attr(dend, "logwk") = logrk + lognk_weight
-  # The complement of this node's r_k becomes part of lognk_weight
-  new_lognk_weight = log_complement(logrk) + lognk_weight
   if (!is.leaf(dend)) {
+    # The complement of this node's r_k becomes part of lognk_weight
+    new_lognk_weight = log_complement(logrk) + lognk_weight
     stopifnot(length(dend) == 2) # Enforce bifurcation
     dend[[1]] = add_logwk(dend[[1]], new_lognk_weight)
     dend[[2]] = add_logwk(dend[[2]], new_lognk_weight)
@@ -112,13 +112,15 @@ add_data_indices = function(dend, data) {
   dend_ix
 }
 
+# FIXME: Could run faster - might not need inner sapply. Do apply over table,
+# then multiply entire thing by scalars
 compute_hyperparameters = function(dend, data) {
   global_hyperparameter = attr(dend, "globalHyperParam")
 
   n_data_items = nrow(data)
   n_features = ncol(data)
 
-  hyperparameter = sapply(seq_along(n_features), function(i) {
+  hyperparameter = sapply(1:n_features, function(i) {
     table_i = table(data[, i])
     # XXX: Basic way of making sure ordering is correct. Probably not ok for
     # more complex categorical data?
