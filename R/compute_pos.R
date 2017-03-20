@@ -69,6 +69,29 @@ add_weights = function(dend) {
   dend
 }
 
+add_data_indices = function(dend, data) {
+  # Construct environment mapping dendrogram labels
+  # FIXME: This doesn't work when dendrograms have the same label!!
+  # Will need a (probably much more drastic) workaround!! E.g.
+  # Dive into C++
+  dend_labs = labels(dend)
+  data_labs = rownames(data)
+
+  # Enforce labels uniqueness
+  stopifnot(length(unique(dend_labs)) == length(dend_labs) &&
+            length(dend_labs) == length(data_labs) &&
+            length(data_labs) == length(unique(data_labs)))
+  # Enforce labels matching
+  stopifnot(all(sort(dend_labs) == sort(data_labs)))
+
+  data_indices = seq_along(data_labs)
+  labs_list = as.list(setNames(data_indices, data_labs))
+
+  labs_map = list2env(labs_list, hash = TRUE)
+
+  labs_map
+}
+
 compute_hyperparameters = function(dend, data) {
   global_hyperparameter = attr(dend, "globalHyperParam")
 
