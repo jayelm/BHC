@@ -94,32 +94,9 @@ compute_hyperparameters = function(dend, data) {
   hyperparameter
 }
 
-# void MultinomialDataSet::ComputeHyperParameters()
-# {
-  # //DECLARATIONS
-  # int            i, j, k;
-  # vector<double> dataCounter;
-  # vector<double> newHyperParameter;
-  # //COMPUTE THE HYPERPARAMETER VALUES
-  # for (i=0; i<nFeatures; i++)
-  # {
-    # //initialise the data counter, vector of new hyperparameters
-    # dataCounter       = vector<double>(nFeatureValues, 1);
-    # newHyperParameter = vector<double>(nFeatureValues, 0);
-    # //count the number of each occurrences of each data value
-    # for (j=0; j<nDataItems; j++)
-      # dataCounter[data[j][i]]++;
-    # //calculate the hyperparameter values
-    # for (k=0; k<nFeatureValues; k++)
-      # newHyperParameter[k] = globalHyperParameter * dataCounter[k] / (nDataItems+1); //this is the formula used by Katherine
-    # //store the hyperparameters
-    # hyperParameter.push_back(newHyperParameter);
-  # }
-# }
-
 # FINAL COMPUTING FUNCTION ====
 compute_pos = function(dend, data) {
-  add_weights(dend)
+  dend = add_weights(dend)
 
   hypers = compute_hyperparameters(dend, data)
 
