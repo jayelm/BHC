@@ -89,7 +89,28 @@ add_data_indices = function(dend, data) {
 
   labs_map = list2env(labs_list, hash = TRUE)
 
-  labs_map
+  # Recursively traverse the tree, keeping track of labels
+  add_indices = function(dend) {
+    this_lab = attr(dend, "label")
+    if (is.leaf(dend)) {
+      attr(dend, "ix") = c(labs_map[[this_lab]])
+    } else {
+      dend[[1]] = add_indices(dend[[1]])
+      dend[[2]] = add_indices(dend[[2]])
+      d1_ix = attr(dend[[1]], "ix")
+      d2_ix = attr(dend[[2]], "ix")
+      attr(dend, "ix") = c(d1_ix, d2_ix)
+    }
+    dend
+  }
+
+  dend_ix = add_indices(dend)
+  # Just some final assertions on the root of the tree
+  ix = attr(dend_ix, "ix")
+  stopifnot(length(unique(ix)) == length(ix))
+  stopifnot(all(sort(ix) == seq_along(ix)))
+
+  dend_ix
 }
 
 compute_hyperparameters = function(dend, data) {
@@ -120,6 +141,7 @@ compute_hyperparameters = function(dend, data) {
 # FINAL COMPUTING FUNCTION ====
 compute_pos = function(dend, data) {
   dend = add_weights(dend)
+  dend = add_data_indices(dend, data)
 
   hypers = compute_hyperparameters(dend, data)
 
