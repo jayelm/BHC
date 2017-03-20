@@ -69,27 +69,26 @@ add_weights = function(dend) {
   dend
 }
 
-# TODO: Vectorize better
 compute_hyperparameters = function(dend, data) {
   global_hyperparameter = attr(dend, "globalHyperParam")
+
   n_data_items = nrow(data)
   n_features = ncol(data)
-  n_feature_values = length(unique(data))
+  n_feature_values = length(unique(data[1:length(data)]))
 
-  hyperparameter = matrix(nrow = n_features, ncol = n_feature_values)
+  hyperparameter = sapply(1:n_features, function(i) {
+    table_i = table(data[, i])
+    # XXX: Basic way of making sure ordering is correct. Probably not ok for
+    # more complex categorical data?
+    stopifnot(names(table_i)[1] < names(table_i)[2])
 
-  for (i in 1:n_features) {
-    data_counter = rep(1, n_feature_values)
-    new_hyperparameter = rep(0, n_feature_values)
-    for (j in 1:n_data_items) {
-      data_counter[data[j, i]] = data_counter[data[j, i]] + 1
-    }
+    # Convert to data_counter - with as_numeric and also add 1 to everything
+    # (for prior)
+    data_counter = as.numeric(table_i) + 1
 
     # Katherine's formula
-    new_hyperparameter = global_hyperparameter * data_counter / (n_data_items + 1)
-
-    hyperparameter[i, ] = new_hyperparameter
-  }
+    global_hyperparameter * data_counter / (n_data_items + 1)
+  })
 
   hyperparameter
 }
