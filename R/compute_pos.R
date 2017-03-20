@@ -37,10 +37,10 @@ log_complement = function(x) log1mexp(-x)
 # logEvidence is the log-merge ratio i.e. log-odds of r_k.
 # This function computes log(r_k) given logEvidence
 add_logrk = function(dend) {
-  dendrapply(dend, function(n) {
-    logEvidencek = attr(n, "logEvidence")
+  dendrapply(dend, function(node) {
+    logEvidencek = attr(node, "logEvidence")
     logrk = loglogistic(logEvidencek)
-    attr(n, "logrk") = logrk
+    attr(node, "logrk") = logrk
     n
   })
 }
@@ -62,7 +62,6 @@ add_logwk = function(dend, lognk_weight = 0) {
 }
 
 add_weights = function(dend) {
-
   dend = add_logrk(dend)
   dend = add_logwk(dend)
 
@@ -118,9 +117,8 @@ compute_hyperparameters = function(dend, data) {
 
   n_data_items = nrow(data)
   n_features = ncol(data)
-  n_feature_values = length(unique(data[1:length(data)]))
 
-  hyperparameter = sapply(1:n_features, function(i) {
+  hyperparameter = sapply(seq_along(n_features), function(i) {
     table_i = table(data[, i])
     # XXX: Basic way of making sure ordering is correct. Probably not ok for
     # more complex categorical data?
