@@ -116,6 +116,7 @@ add_data_indices = function(dend, data) {
 # then multiply entire thing by scalars
 compute_hyperparameters = function(dend, data) {
   global_hyperparameter = attr(dend, "globalHyperParam")
+  stopifnot(global_hyperparameter != NULL)
 
   n_data_items = nrow(data)
   n_features = ncol(data)
@@ -138,12 +139,62 @@ compute_hyperparameters = function(dend, data) {
   t(hyperparameter)
 }
 
+compute_aprime = function(dend, data, hypers) {
+  feature_values = sort(unique(data[1:length(data)]))
+
+  # First add raw counts as aprime
+  add_counts = function(dend) {
+    if (is.leaf(dend)) {
+      ix = attr(dend, "ix")
+      stopifnot(length(ix) == 1)
+      # Factor w/ feature_values levels to assign zero counts
+      row = factor(data[ix, ], levels = feature_values)
+      # Trivially tabulate each column of the row and convert to numeric
+      counts = t(sapply(row, function(t) as.numeric(table(t))))
+      attr(dend, "aprime") = counts
+    } else {
+      # Get counts of children
+      dend[[1]] = add_counts(dend[[1]])
+      dend[[2]] = add_counts(dend[[2]])
+      d1_counts = attr(dend[[1]], "aprime")
+      d2_counts = attr(dend[[2]], "aprime")
+
+      # Sum up counts of children, including hyperparams
+      counts = d1_counts + d2_counts
+      attr(dend, "aprime") = counts
+    }
+    dend
+  }
+
+  # Then add hypers to each aprime
+  add_aprime = function(dend) {
+    dendrapply(dend, function(node) {
+      attr(node, "aprime") = attr(node, "aprime") + hypers
+      node
+    })
+  }
+
+  dend_counts = add_counts(dend)
+  dend_aprime = add_aprime(dend_counts)
+
+  dend_aprime
+}
+
 # FINAL COMPUTING FUNCTION ====
-compute_pos = function(dend, data) {
+compute_pos = function(dend, data, verbose = FALSE) {
+  # Make sure data is a matrix
+  data = as.matrix(data)
+  if (verbose) message("Adding weights (logrk and logwk)")
   dend = add_weights(dend)
+  if (verbose) message("Adding indices of data")
   dend = add_data_indices(dend, data)
 
+  if (verbose) message("Computing hyperparameters")
   hypers = compute_hyperparameters(dend, data)
 
+  if (verbose) message("Computing aprime (hypers + counts)")
+  dend = compute_aprime(dend, data, hypers)
+
+  if (verbose) message("Done, returning")
   dend
 }
