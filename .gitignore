@@ -1,0 +1,6 @@
+# TeX
+*.aux
+*.bbl
+*.log
+*.fdb_latexmk
+*.fls

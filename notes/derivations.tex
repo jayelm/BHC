@@ -1,0 +1,46 @@
+\documentclass[letterpaper]{article}
+
+\usepackage{amsmath}
+\usepackage{url}
+
+\begin{document}
+
+\section{Dirichlet-Multinomial posterior predictive}
+
+Let $\alpha'_j = \alpha_j + \sum_{y_i \in D} y_i^{(j)}$. The set of $\alpha'_j$ has the same
+dimensionality as the hyperparameters $\alpha_j$ and needs to be associated with each node in the
+dendrogram.
+
+The posterior predictive
+is:\footnote{\url{https://people.eecs.berkeley.edu/~stephentu/writeups/dirichlet-conjugate-prior.pdf}}
+
+\begin{align*}
+  f(y \mid D) &= \frac{\Gamma(n + 1)}{\prod_{j = 1}^K \Gamma(y^{(j)} + 1)} \frac{\Gamma\left(\sum_{j =
+  1}^K \alpha'_j\right)}{\prod_{j = 1}^K \Gamma(\alpha'_j)} \frac{\prod_{j = 1}^K \Gamma(y^{(j)} +
+\alpha'_j)}{\Gamma\left(n + \sum_{j = 1}^K \alpha'_j\right)}
+\end{align*}
+  
+We want the log-likelihood:
+
+\begin{align*}
+  \log f(y \mid D) &= \log \Gamma(n + 1) - \log \prod_{j = 1}^K \Gamma(y^{(j)} + 1)
+  \\
+  & + \log \Gamma\left(\sum_{j = 1}^K \alpha'_j\right) - \log \prod_{j = 1}^K
+  \Gamma(\alpha'_j) \\
+  &+ \log \prod_{j = 1}^K \Gamma(y^{(j)} + \alpha'_j) - \log \Gamma\left(n + \sum_{j = 1}^K \alpha'_j\right) \\
+  &=
+  \log \Gamma(n + 1) - \sum_{j = 1}^K \log \Gamma(y^{(j)} + 1)
+  \\
+  & + \log \Gamma\left(\sum_{j = 1}^K \alpha'_j\right) - \sum_{j = 1}^K
+  \log \Gamma(\alpha'_j) \\
+  &+ \sum_{j = 1}^K \log \Gamma(y^{(j)} + \alpha'_j) - \log \Gamma\left(n + \sum_{j = 1}^K \alpha'_j\right) \\
+\end{align*}
+
+The node-dependent values in this function are $n$ and $\alpha'_j$. Naively, both of these need to
+be computed and kept as an attribute for each node. However, keeping a large matrix of
+$\boldsymbol{\alpha}'$
+
+There are further optimizations possible, e.g.\ by
+caching sums of $\alpha'_j$.
+
+\end{document}
