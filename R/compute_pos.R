@@ -90,7 +90,8 @@ compute_hyperparameters = function(dend, data) {
     global_hyperparameter * data_counter / (n_data_items + 1)
   })
 
-  hyperparameter
+  # Transpose since sapply returns columns
+  t(hyperparameter)
 }
 
 # FINAL COMPUTING FUNCTION ====
