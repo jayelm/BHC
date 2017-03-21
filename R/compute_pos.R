@@ -136,7 +136,7 @@ compute_hyperparameters = function(dend, data) {
   })
 
   # Transpose since sapply returns columns
-  t(hyperparameter)
+  hyperparameter
 }
 
 compute_aprime = function(dend, data, hypers) {
@@ -150,7 +150,7 @@ compute_aprime = function(dend, data, hypers) {
       # Factor w/ feature_values levels to assign zero counts
       row = factor(data[ix, ], levels = feature_values)
       # Trivially tabulate each column of the row and convert to numeric
-      counts = t(sapply(row, function(t) as.numeric(table(t))))
+      counts = sapply(row, function(t) table(t))
       attr(dend, "aprime") = counts
     } else {
       # Get counts of children
