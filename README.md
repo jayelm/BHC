@@ -1,7 +1,10 @@
 # Predictive BHC
 
-Rich Savage's BHC implementation, but including some routines to compute the
-posterior predictive distribution.
+Rich Savage's BHC implementation with two differences:
+
+1. Enable multiprocessing and randomization for the multinomial model.
+2. Including some routines to compute the posterior predictive distribution
+   **for Dirichlet-Categorical models only**.
 
 Things to do to compute posterior predictive:
 
@@ -10,13 +13,13 @@ Things to do to compute posterior predictive:
     - Can be done recursively, probably; look at $\omega_k$ formula (just sum of weights of nodes up to root)
 - Re-calculate Dirichlet hyperparameters (**Done**)
 - Function for getting indices of the data represented by each node (**Done**)
-- Function for computing the posterior predictive distribution given a node's subset of data and hyperparameters;
+- Function for computing the posterior predictive distribution given a node's subset of data and hyperparameters; (**Done**)
     - More specifically, a function for returning the log-likelihood of a data point according to the posterior predictive distribution of a node (I don't need to do sampling)
     - Follow (and verify) math in https://people.eecs.berkeley.edu/~stephentu/writeups/dirichlet-conjugate-prior.pdf
         - Or find an R version on the internet somewhere???
         - Will require clarifying the prior parameters of the multinomial
 - A toplevel function to make predictions from the tree by summing up over all
-    nodes $\omega_k$
+    nodes $\omega_k$ (**Done**)
 
 To not mess around with export, it might be worth defining some of these
 functions within toplevel, export-ready functions (or at least composed into
