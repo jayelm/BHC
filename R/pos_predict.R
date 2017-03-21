@@ -27,15 +27,15 @@ pos_predict = function(dend, y) {
     # For a single component, the probability is the sum of the selected
     # alphas (normalized to probabilities), plus the weight of the cluster
     # logwk
-    val = sum(log(apy / apsum)) + logwk
+    logp = sum(log(apy / apsum)) + logwk
     if (!is.leaf(dend)) {
       # Get probabilities of children
-      lp_1 = rec_predict(dend[[1]])
-      lp_2 = rec_predict(dend[[2]])
+      logp_1 = rec_predict(dend[[1]])
+      logp_2 = rec_predict(dend[[2]])
       # Add these probabilities and try to prevent instability
-      val = log_sum_exp(val, log_sum_exp(lp_1, lp_2))
+      logp = log_sum_exp(val, log_sum_exp(logp_1, logp_2))
     }
-    val
+    logp
   }
 
   rec_predict(dend)
