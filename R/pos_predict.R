@@ -1,7 +1,20 @@
 # Function for computing posterior predictions
 
-log_sum_exp = function(u, v) {
+# Add two numbers
+log_sum_exp_single = function(u, v) {
   max(u, v) + log(exp(u - max(u, v)) + exp(v - max(u, v)))
+}
+
+# Add multiple numbers
+log_sum_exp = function(a) {
+  n = length(a)
+  if (n == 0) {
+    -Inf
+  } else if (n == 1) {
+    a[1]
+  } else {
+    Reduce(log_sum_exp_single, a[-1], a[1])
+  }
 }
 
 # Note that the loglikelihood for an entire point is simply the product
