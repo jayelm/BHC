@@ -33,7 +33,7 @@ pos_predict = function(dend, y) {
       logp_1 = rec_predict(dend[[1]])
       logp_2 = rec_predict(dend[[2]])
       # Add these probabilities and try to prevent instability
-      logp = log_sum_exp(val, log_sum_exp(logp_1, logp_2))
+      logp = log_sum_exp(logp, log_sum_exp(logp_1, logp_2))
     }
     logp
   }
