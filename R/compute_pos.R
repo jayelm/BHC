@@ -18,15 +18,10 @@ log1pexp = function(x) {
 # (hopefully) the least numerical instability issues
 loglogistic = function(x) -log1pexp(-x)
 
-# If x = log(p) and y = log(q), this computes log(p + q)
-log_add = function(x, y) {
-  if (x == -Inf) {
-    y
-  } else if (y == -Inf) {
-    x
-  } else {
-    max(x, y) + log1pexp(-abs(x - y))
-  }
+# Add two numbers
+# TODO: Figure out how to share this with pos_predict
+log_sum_exp_single = function(u, v) {
+  max(u, v) + log(exp(u - max(u, v)) + exp(v - max(u, v)))
 }
 
 # If L = log(p), p = exp(L), so
@@ -55,8 +50,20 @@ add_logwk = function(dend, lognk_weight = 0) {
     # The complement of this node's r_k becomes part of lognk_weight
     new_lognk_weight = log_complement(logrk) + lognk_weight
     stopifnot(length(dend) == 2) # Enforce bifurcation
-    dend[[1]] = add_logwk(dend[[1]], new_lognk_weight)
-    dend[[2]] = add_logwk(dend[[2]], new_lognk_weight)
+
+    # TODO: This is where I deviate from Heller - also encoded in lognk_weight
+    # should be the probability of NOT choosing the other child
+    logrk_left = attr(dend[[1]], "logrk")
+    logrk_right = attr(dend[[2]], "logrk")
+    # After stuart sale's PyBHC
+    logp_left = logrk_left - (log_sum_exp_single(logrk_left, logrk_right))
+    logp_right = log_complement(logp_left)
+    # For the LEFT child, include in lognk_weight the probability of choosing
+    # the left (i.e. logp_left)
+    # for the RIGHT child, include the probability of choosing the right (1 - logp_left)
+
+    dend[[1]] = add_logwk(dend[[1]], new_lognk_weight + logp_left)
+    dend[[2]] = add_logwk(dend[[2]], new_lognk_weight + logp_right)
   }
   dend
 }
