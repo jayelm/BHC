@@ -67,6 +67,8 @@ add_logwk = function(dend, lognk_weight = 0, eq9 = FALSE) {
     stopifnot(length(dend) == 2) # Enforce bifurcation
 
     if (eq9) {
+      new_lognk_weight_left = new_lognk_weight_right = new_lognk_weight
+    } else {
       # TODO: This is where I deviate from Heller - also encoded in lognk_weight
       # should be the probability of NOT choosing the other child
       logrk_left = attr(dend[[1]], "logrk")
@@ -79,8 +81,6 @@ add_logwk = function(dend, lognk_weight = 0, eq9 = FALSE) {
       # for the RIGHT child, include the probability of choosing the right (1 - logp_left)
       new_lognk_weight_left = new_lognk_weight + logp_left
       new_lognk_weight_right = new_lognk_weight + logp_right
-    } else {
-      new_lognk_weight_left = new_lognk_weight_right = new_lognk_weight
     }
 
     dend[[1]] = add_logwk(dend[[1]], new_lognk_weight_left, eq9 = eq9)
