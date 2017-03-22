@@ -58,7 +58,7 @@ add_logrk = function(dend) {
 # This function returns a new dendrogram with logwk assigned.
 # lognk_weight is $\prod_{i \in \mathcal{N}_k} (1 - r_i)$ (i.e. product of
 # complements of the weights from the parent to the root)
-add_logwk = function(dend, lognk_weight = 0) {
+add_logwk = function(dend, lognk_weight = 0, eq9 = FALSE) {
   logrk = attr(dend, "logrk")
   attr(dend, "logwk") = logrk + lognk_weight
   if (!is.leaf(dend)) {
@@ -66,26 +66,32 @@ add_logwk = function(dend, lognk_weight = 0) {
     new_lognk_weight = log_complement(logrk) + lognk_weight
     stopifnot(length(dend) == 2) # Enforce bifurcation
 
-    # TODO: This is where I deviate from Heller - also encoded in lognk_weight
-    # should be the probability of NOT choosing the other child
-    logrk_left = attr(dend[[1]], "logrk")
-    logrk_right = attr(dend[[2]], "logrk")
-    # After stuart sale's PyBHC
-    logp_left = logrk_left - (log_sum_exp_single(logrk_left, logrk_right))
-    logp_right = log_complement(logp_left)
-    # For the LEFT child, include in lognk_weight the probability of choosing
-    # the left (i.e. logp_left)
-    # for the RIGHT child, include the probability of choosing the right (1 - logp_left)
+    if (eq9) {
+      # TODO: This is where I deviate from Heller - also encoded in lognk_weight
+      # should be the probability of NOT choosing the other child
+      logrk_left = attr(dend[[1]], "logrk")
+      logrk_right = attr(dend[[2]], "logrk")
+      # After stuart sale's PyBHC
+      logp_left = logrk_left - (log_sum_exp_single(logrk_left, logrk_right))
+      logp_right = log_complement(logp_left)
+      # For the LEFT child, include in lognk_weight the probability of choosing
+      # the left (i.e. logp_left)
+      # for the RIGHT child, include the probability of choosing the right (1 - logp_left)
+      new_lognk_weight_left = new_lognk_weight + logp_left
+      new_lognk_weight_right = new_lognk_weight + logp_right
+    } else {
+      new_lognk_weight_left = new_lognk_weight_right = new_lognk_weight
+    }
 
-    dend[[1]] = add_logwk(dend[[1]], new_lognk_weight + logp_left)
-    dend[[2]] = add_logwk(dend[[2]], new_lognk_weight + logp_right)
+    dend[[1]] = add_logwk(dend[[1]], new_lognk_weight_left, eq9 = eq9)
+    dend[[2]] = add_logwk(dend[[2]], new_lognk_weight_right, eq9 = eq9)
   }
   dend
 }
 
-add_weights = function(dend) {
+add_weights = function(dend, eq9 = FALSE) {
   dend = add_logrk(dend)
-  dend = add_logwk(dend)
+  dend = add_logwk(dend, eq9 = eq9)
 
   dend
 }
@@ -210,16 +216,23 @@ compute_logprobs = function(dend, data, hypers) {
 }
 
 # FINAL COMPUTING FUNCTION ====
-compute_pos = function(dend, data, verbose = FALSE) {
+compute_pos = function(dend, data, verbose = FALSE, eq9 = FALSE) {
   # Make sure data is a matrix
   data = as.matrix(data)
   if (verbose) message("Adding weights (logrk and logwk)")
-  dend = add_weights(dend)
+  if (verbose && eq9) message("logwk computed according to eq9")
+  dend = add_weights(dend, eq9 = eq9)
   if (verbose) message("Adding indices of data")
   dend = add_data_indices(dend, data)
 
   if (verbose) message("Computing hyperparameters")
   hypers = compute_hyperparameters(dend, data)
+
+  # XXX TODO:
+  print("TODO: Instead of calculating probabilities from aprime over and over, just return matrices of the normalized log-probabilities!!!")
+  print("Also, think of this as beta dist: a + y, b + n - y")
+  print("also: hybrid BHC model is actually still general; as long as you run BHC on whatever generative model, you can use the same r_ks but simply recalculate posterior using the binary verbnet data")
+  print("Also demonstrate posterior predictive sum to 1; theoretical arg?")
 
   if (verbose) message("Computing logprobs")
   dend = compute_logprobs(dend, data, hypers)
