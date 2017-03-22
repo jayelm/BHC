@@ -1,17 +1,32 @@
 # Functions for adding posterior predictive distributions to trees from bhc
 
+LOG2 = log(2)
+
 # PROBABILITY FUNCTIONS ====
+# Note these functions are NOT vectorized with ifelse as they don't work with
+# mpfr numbers.
 
 # log1mexp(x) = log(1 - exp(-x))
 log1mexp = function(x) {
-  ifelse(x <= log(2), log(-expm1(-x)), log1p(-exp(-x)))
+  if (x <= LOG2) {
+    log(-expm1(-x))
+  } else {
+    log1p(-exp(-x))
+  }
 }
 
 # log1pexp(x) = log(1 + exp(x))
+# TODO: These cutoffs might not be the same based on varying PREC
 log1pexp = function(x) {
-  ifelse(x <= -37, exp(x),
-         ifelse(x <= 18, log1p(exp(x)),
-                ifelse(x <= 33, x + exp(-x), x)))
+  if (x <= -37) {
+    exp(x)
+  } else if (x <= 18) {
+    log1p(exp(x))
+  } else if (x <= 33) {
+    x + exp(-x)
+  } else {
+    x
+  }
 }
 
 # If given a log-odds ratio log(p / (1 - p)), this obtains log(p) with
