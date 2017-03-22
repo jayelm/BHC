@@ -69,18 +69,19 @@ add_logwk = function(dend, lognk_weight = 0, eq9 = FALSE) {
     if (eq9) {
       new_lognk_weight_left = new_lognk_weight_right = new_lognk_weight
     } else {
-      # TODO: This is where I deviate from Heller - also encoded in lognk_weight
-      # should be the probability of NOT choosing the other child
-      logrk_left = attr(dend[[1]], "logrk")
-      logrk_right = attr(dend[[2]], "logrk")
-      # After stuart sale's PyBHC
-      logp_left = logrk_left - (log_sum_exp_single(logrk_left, logrk_right))
-      logp_right = log_complement(logp_left)
+      # This is where I deviate from Heller - also encoded in lognk_weight
+      # should be the probability of NOT choosing the other child. This is
+      # weighted by the size of the subtrees
+      n_k = attr(dend, "members")
+      n_left = attr(dend[[1]], "members")
+      R_left = n_left / n_k
+
       # For the LEFT child, include in lognk_weight the probability of choosing
-      # the left (i.e. logp_left)
-      # for the RIGHT child, include the probability of choosing the right (1 - logp_left)
-      new_lognk_weight_left = new_lognk_weight + logp_left
-      new_lognk_weight_right = new_lognk_weight + logp_right
+      # the left (i.e. log(R_left))
+      # for the RIGHT child, include the probability of choosing the right (1 -
+      # logp_left)
+      new_lognk_weight_left = new_lognk_weight + log(R_left)
+      new_lognk_weight_right = new_lognk_weight + log(1 - R_left)
     }
 
     dend[[1]] = add_logwk(dend[[1]], new_lognk_weight_left, eq9 = eq9)
