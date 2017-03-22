@@ -228,12 +228,6 @@ compute_pos = function(dend, data, verbose = FALSE, eq9 = FALSE) {
   if (verbose) message("Computing hyperparameters")
   hypers = compute_hyperparameters(dend, data)
 
-  # XXX TODO:
-  print("TODO: Instead of calculating probabilities from aprime over and over, just return matrices of the normalized log-probabilities!!!")
-  print("Also, think of this as beta dist: a + y, b + n - y")
-  print("also: hybrid BHC model is actually still general; as long as you run BHC on whatever generative model, you can use the same r_ks but simply recalculate posterior using the binary verbnet data")
-  print("Also demonstrate posterior predictive sum to 1; theoretical arg?")
-
   if (verbose) message("Computing logprobs")
   dend = compute_logprobs(dend, data, hypers)
 
