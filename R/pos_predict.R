@@ -22,25 +22,23 @@ log_sum_exp = function(a) {
 # is the Dirichlet-Multinomial model.
 # Compute the loglikelihood of the given test point for the given dendrogram
 pos_predict = function(dend, y) {
-  # Cache feature vector as number of columns of root aprime
-  n_features = ncol(attr(dend, "aprime"))
-  # Cache indexing vector into aprime matrices
+  # Cache feature vector as number of columns of root logprobs
+  n_features = ncol(attr(dend, "logprobs"))
+  # Cache indexing vector into logprob matrices
   # Add 1 so that the values are valid indices
   # FIXME: This only works with multinomial values that start from 0!!
-  ap_ix = cbind(y + 1, 1:n_features)
+  lp_ix = cbind(y + 1, 1:n_features)
 
   rec_predict = function(dend) {
-    # Get this aprime and weight
-    aprime = attr(dend, "aprime")
+    # Get these logprobs and weight
+    logprobs = attr(dend, "logprobs")
     logwk = attr(dend, "logwk")
 
-    apsum = colSums(aprime)
-    apy = aprime[ap_ix]
+    logprobs_y = logprobs[lp_ix]
 
     # For a single component, the probability is the sum of the selected
-    # alphas (normalized to probabilities), plus the weight of the cluster
-    # logwk
-    logp = sum(log(apy / apsum)) + logwk
+    # logprobs, times the weight of the cluster logwk.
+    logp = sum(logprobs_y) + logwk
     if (!is.leaf(dend)) {
       # Get probabilities of children
       logp_1 = rec_predict(dend[[1]])

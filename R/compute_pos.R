@@ -161,7 +161,7 @@ compute_hyperparameters = function(dend, data) {
   hyperparameter
 }
 
-compute_aprime = function(dend, data, hypers) {
+compute_logprobs = function(dend, data, hypers) {
   feature_values = sort(unique(data[1:length(data)]))
 
   # First add raw counts as aprime
@@ -188,18 +188,25 @@ compute_aprime = function(dend, data, hypers) {
     dend
   }
 
-  # Then add hypers to each aprime
-  add_aprime = function(dend) {
+  # Compute logprobs and drop aprime
+  add_logprobs = function(dend) {
     dendrapply(dend, function(node) {
-      attr(node, "aprime") = attr(node, "aprime") + hypers
+      # XXX: here I extract raw probabilities. If I wanted to save even more
+      # space, I could just store the true probability (for the binary case).
+      # But maybe premature optimization
+      aprime = attr(node, "aprime") + hypers
+      # Normalize by column sums, then take the log
+      aprime_scaled = scale(aprime, center = FALSE, scale = colSums(aprime))
+      attr(node, "aprime") = NULL
+      attr(node, "logprobs") = log(aprime_scaled)
       node
     })
   }
 
   dend_counts = add_counts(dend)
-  dend_aprime = add_aprime(dend_counts)
+  dend_logprobs = add_logprobs(dend_counts)
 
-  dend_aprime
+  dend_logprobs
 }
 
 # FINAL COMPUTING FUNCTION ====
@@ -214,8 +221,8 @@ compute_pos = function(dend, data, verbose = FALSE) {
   if (verbose) message("Computing hyperparameters")
   hypers = compute_hyperparameters(dend, data)
 
-  if (verbose) message("Computing aprime (hypers + counts)")
-  dend = compute_aprime(dend, data, hypers)
+  if (verbose) message("Computing logprobs")
+  dend = compute_logprobs(dend, data, hypers)
 
   if (verbose) message("Done, returning")
   dend
