@@ -168,7 +168,7 @@ compute_hyperparameters = function(dend, data) {
   hyperparameter
 }
 
-compute_logprobs = function(dend, data, hypers) {
+compute_probs = function(dend, data, hypers) {
   feature_values = sort(unique(data[1:length(data)]))
 
   # First add raw counts as aprime
@@ -195,8 +195,8 @@ compute_logprobs = function(dend, data, hypers) {
     dend
   }
 
-  # Compute logprobs and drop aprime
-  add_logprobs = function(dend) {
+  # Compute probs and drop aprime
+  add_probs = function(dend) {
     dendrapply(dend, function(node) {
       # XXX: here I extract raw probabilities. If I wanted to save even more
       # space, I could just store the true probability (for the binary case).
@@ -205,15 +205,28 @@ compute_logprobs = function(dend, data, hypers) {
       # Normalize by column sums, then take the log
       aprime_scaled = scale(aprime, center = FALSE, scale = colSums(aprime))
       attr(node, "aprime") = NULL
-      attr(node, "logprobs") = log(aprime_scaled)
+      # FIXME: THIS ONLY WORKS WITH BINARY MODELS - I only keep positive
+      # probability (i.e. 1). Row 1 is p(0), row 2 is p(1)
+      attr(node, "probs") = aprime_scaled[2, ]
       node
     })
   }
 
   dend_counts = add_counts(dend)
-  dend_logprobs = add_logprobs(dend_counts)
+  dend_probs = add_probs(dend_counts)
 
-  dend_logprobs
+  dend_probs
+}
+
+extract_mixture_model = function(dend) {
+  # To facilitate faster computation with pos_predict, we can now drop the
+  # dendrogram structure and return a list with the
+  # XXX: This will only work with binaries!
+  probs = dendextend::get_nodes_attr(dend, "probs")
+  # Aprime is a 3d array, we want to collapse to a
+  logwk = dendextend::get_nodes_attr(dend, "logwk")
+
+  list(probs = data.frame(probs), logwk = logwk)
 }
 
 # FINAL COMPUTING FUNCTION ====
@@ -229,9 +242,12 @@ compute_pos = function(dend, data, verbose = FALSE, eq9 = FALSE) {
   if (verbose) message("Computing hyperparameters")
   hypers = compute_hyperparameters(dend, data)
 
-  if (verbose) message("Computing logprobs")
-  dend = compute_logprobs(dend, data, hypers)
+  if (verbose) message("Computing probs")
+  dend = compute_probs(dend, data, hypers)
+
+  if (verbose) message("Extracting mixture model components only")
+  mm = extract_mixture_model(dend)
 
   if (verbose) message("Done, returning")
-  dend
+  mm
 }

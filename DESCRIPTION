@@ -9,3 +9,7 @@ Description: The method performs bottom-up hierarchical clustering, using a Diri
 License: GPL-3
 biocViews: Microarray, Clustering
 Packaged: 2011-11-18 09:26:53 UTC; richsavage
+Imports:
+    dendextend
+Suggests:
+    dendextendRcpp
