@@ -58,17 +58,34 @@ add_logrk = function(dend) {
 # This function returns a new dendrogram with logwk assigned.
 # lognk_weight is $\prod_{i \in \mathcal{N}_k} (1 - r_i)$ (i.e. product of
 # complements of the weights from the parent to the root)
-add_logwk = function(dend, lognk_weight = 0, eq9 = FALSE) {
+add_logwk = function(dend, lognk_weight = 0, method = 'nk', root_members = NULL) {
+  if (!(method %in% c('nk', 'eq9', 'tim'))) {
+    stop("Weights must be one of nk, eq9, tim")
+  }
+  if (root_members == NULL) {
+    # Set members
+    root_members = attr(dend, 'members')
+  }
+
   logrk = attr(dend, "logrk")
-  attr(dend, "logwk") = logrk + lognk_weight
+
+  if (method == 'tim') {
+    # r_k, lognk, AND tim's formula.
+    # alpha hardcoded to 0.001
+    log_comp_prob = log(attr(dend, 'members') / (root_members + 0.001))
+    attr(dend, "logwk") = logrk + lognk_weight + log_comp_prob
+  } else {
+    # Standard r_k + lognk
+    attr(dend, "logwk") = logrk + lognk_weight
+  }
   if (!is.leaf(dend)) {
     # The complement of this node's r_k becomes part of lognk_weight
     new_lognk_weight = log_complement(logrk) + lognk_weight
     stopifnot(length(dend) == 2) # Enforce bifurcation
 
-    if (eq9) {
+    if (method == 'eq9') {
       new_lognk_weight_left = new_lognk_weight_right = new_lognk_weight
-    } else {
+    } else if (method == 'nk') {
       # This is where I deviate from Heller - also encoded in lognk_weight
       # should be the probability of NOT choosing the other child. This is
       # weighted by the size of the subtrees
@@ -82,17 +99,20 @@ add_logwk = function(dend, lognk_weight = 0, eq9 = FALSE) {
       # logp_left)
       new_lognk_weight_left = new_lognk_weight + log(R_left)
       new_lognk_weight_right = new_lognk_weight + log(1 - R_left)
+    } else {
+      # Tim's formula operates not on children, but on the current node.
+      new_lognk_weight_left = new_lognk_weight_right = new_lognk_weight
     }
 
-    dend[[1]] = add_logwk(dend[[1]], new_lognk_weight_left, eq9 = eq9)
-    dend[[2]] = add_logwk(dend[[2]], new_lognk_weight_right, eq9 = eq9)
+    dend[[1]] = add_logwk(dend[[1]], new_lognk_weight_left, eq9 = eq9, root_members = root_members)
+    dend[[2]] = add_logwk(dend[[2]], new_lognk_weight_right, eq9 = eq9, root_members = root_members)
   }
   dend
 }
 
-add_weights = function(dend, eq9 = FALSE) {
+add_weights = function(dend, method = 'nk') {
   dend = add_logrk(dend)
-  dend = add_logwk(dend, eq9 = eq9)
+  dend = add_logwk(dend, method = method)
 
   dend
 }
@@ -230,12 +250,14 @@ extract_mixture_model = function(dend) {
 }
 
 # FINAL COMPUTING FUNCTION ====
-compute_pos = function(dend, data, verbose = FALSE, eq9 = FALSE) {
+compute_pos = function(dend, data, verbose = FALSE, method = 'nk') {
   # Make sure data is a matrix
   data = as.matrix(data)
-  if (verbose) message("Adding weights (logrk and logwk)")
-  if (verbose && eq9) message("logwk computed according to eq9")
-  dend = add_weights(dend, eq9 = eq9)
+  if (verbose) {
+    message("Adding weights (logrk and logwk)")
+    message("logwk computed according to ", method)
+  }
+  dend = add_weights(dend, method = method)
   if (verbose) message("Adding indices of data")
   dend = add_data_indices(dend, data)
 
