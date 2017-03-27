@@ -58,12 +58,12 @@ add_logrk = function(dend) {
 # This function returns a new dendrogram with logwk assigned.
 # lognk_weight is $\prod_{i \in \mathcal{N}_k} (1 - r_i)$ (i.e. product of
 # complements of the weights from the parent to the root)
-add_logwk = function(dend, lognk_weight = 0, method = 'nk', root_members = NULL) {
+add_logwk = function(dend, lognk_weight = 0, method = 'nk', root_members = 0) {
   if (!(method %in% c('nk', 'eq9', 'tim'))) {
     stop("Weights must be one of nk, eq9, tim")
   }
-  if (root_members == NULL) {
-    # Set members
+  if (root_members == 0) {
+    # Set # members at root
     root_members = attr(dend, 'members')
   }
 
@@ -104,8 +104,8 @@ add_logwk = function(dend, lognk_weight = 0, method = 'nk', root_members = NULL)
       new_lognk_weight_left = new_lognk_weight_right = new_lognk_weight
     }
 
-    dend[[1]] = add_logwk(dend[[1]], new_lognk_weight_left, eq9 = eq9, root_members = root_members)
-    dend[[2]] = add_logwk(dend[[2]], new_lognk_weight_right, eq9 = eq9, root_members = root_members)
+    dend[[1]] = add_logwk(dend[[1]], new_lognk_weight_left, root_members = root_members, method = method)
+    dend[[2]] = add_logwk(dend[[2]], new_lognk_weight_right, root_members = root_members, method = method)
   }
   dend
 }
