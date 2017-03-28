@@ -165,7 +165,10 @@ add_data_indices = function(dend, data) {
 # then multiply entire thing by scalars
 compute_hyperparameters = function(dend, data) {
   global_hyperparameter = attr(dend, "globalHyperParam")
-  stopifnot(!is.null(global_hyperparameter))
+  if (is.null(global_hyperparameter)) {
+    # Sensible (inconsequential) default, same as Expt 1.
+    global_hyperparameter = 0.46
+  }
 
   n_data_items = nrow(data)
   n_features = ncol(data)
